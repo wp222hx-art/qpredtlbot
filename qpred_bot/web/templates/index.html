@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QPred Bot · 配置 & AI 测试面板</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    color: #e2e8f0;
+    min-height: 100vh;
+    padding: 24px;
+  }
+  .wrap { max-width: 1100px; margin: 0 auto; }
+  h1 {
+    font-size: 28px;
+    background: linear-gradient(90deg, #38bdf8, #a78bfa);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin: 0 0 8px;
+  }
+  .sub { color: #94a3b8; margin-bottom: 24px; font-size: 14px; }
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  @media (max-width: 880px) { .grid { grid-template-columns: 1fr; } }
+  .card {
+    background: rgba(30, 41, 59, 0.7);
+    border: 1px solid rgba(148, 163, 184, 0.15);
+    border-radius: 14px;
+    padding: 22px;
+    backdrop-filter: blur(8px);
+  }
+  .card h2 {
+    margin: 0 0 16px;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    background: rgba(56, 189, 248, 0.15);
+    border: 1px solid rgba(56, 189, 248, 0.4);
+    color: #38bdf8;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 500;
+  }
+  label {
+    display: block;
+    font-size: 13px;
+    color: #cbd5e1;
+    margin: 12px 0 6px;
+  }
+  label .hint { color: #64748b; font-size: 11px; margin-left: 8px; }
+  input, select, textarea {
+    width: 100%;
+    padding: 10px 12px;
+    background: rgba(15, 23, 42, 0.7);
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    border-radius: 8px;
+    color: #f1f5f9;
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    transition: border 0.2s;
+  }
+  input:focus, select:focus, textarea:focus { border-color: #38bdf8; }
+  textarea { resize: vertical; min-height: 90px; font-family: ui-monospace, monospace; font-size: 13px; }
+  .row { display: flex; gap: 12px; }
+  .row > div { flex: 1; }
+  .switch { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+  .switch input { width: auto; }
+  button {
+    padding: 10px 18px;
+    background: linear-gradient(90deg, #38bdf8, #6366f1);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    transition: transform 0.1s;
+  }
+  button:hover { transform: translateY(-1px); }
+  button.ghost {
+    background: transparent;
+    border: 1px solid rgba(148, 163, 184, 0.3);
+    color: #cbd5e1;
+  }
+  button.danger {
+    background: linear-gradient(90deg, #ef4444, #f97316);
+  }
+  button.success {
+    background: linear-gradient(90deg, #10b981, #059669);
+  }
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+  .result {
+    margin-top: 12px;
+    padding: 12px;
+    background: rgba(15, 23, 42, 0.7);
+    border-radius: 8px;
+    border-left: 3px solid #38bdf8;
+    font-size: 13px;
+    white-space: pre-wrap;
+    word-break: break-word;
+    max-height: 400px;
+    overflow: auto;
+    font-family: ui-monospace, monospace;
+  }
+  .result.error { border-left-color: #ef4444; }
+  .result.success { border-left-color: #10b981; }
+  .footer {
+    text-align: center;
+    margin-top: 30px;
+    color: #64748b;
+    font-size: 12px;
+  }
+  .step {
+    display: flex;
+    gap: 12px;
+    margin: 8px 0;
+    padding: 8px 12px;
+    background: rgba(15, 23, 42, 0.4);
+    border-radius: 8px;
+    font-size: 13px;
+    color: #cbd5e1;
+  }
+  .step .num {
+    background: linear-gradient(90deg, #38bdf8, #6366f1);
+    color: white;
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700;
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+  .step a { color: #38bdf8; text-decoration: none; }
+  .step code {
+    background: rgba(56, 189, 248, 0.1);
+    padding: 1px 6px;
+    border-radius: 4px;
+    color: #7dd3fc;
+    font-size: 12px;
+  }
+  .status-pill {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .status-pill.on  { background: rgba(16, 185, 129, 0.15); color: #10b981; }
+  .status-pill.off { background: rgba(148, 163, 184, 0.15); color: #94a3b8; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>🤖 QPred Telegram Bot · 配置 & 调试中心</h1>
+  <div class="sub">所有模型走 <a href="https://tokenhot.ai/zh" target="_blank" style="color:#38bdf8">tokenhot.ai</a> 统一网关 · 一键测试 · 一键启动</div>
+
+  <!-- 部署引导 -->
+  <div class="card" style="margin-bottom:20px;">
+    <h2>📋 三步开通 <span class="badge">新手必读</span></h2>
+    <div class="step">
+      <div class="num">1</div>
+      <div>打开 <a href="https://t.me/BotFather" target="_blank">@BotFather</a> → 发送 <code>/newbot</code> → 起个名 → 复制返回的 Token, 填入下方 BOT_TOKEN</div>
+    </div>
+    <div class="step">
+      <div class="num">2</div>
+      <div>打开 <a href="https://t.me/userinfobot" target="_blank">@userinfobot</a> → 发任意消息 → 复制您的 User ID, 填入 ADMIN_IDS</div>
+    </div>
+    <div class="step">
+      <div class="num">3</div>
+      <div>访问 <a href="https://api.tokenhot.ai/console/token" target="_blank">tokenhot.ai 控制台</a> → 生成 API Key (sk-xxx) → 填入下方 API Key</div>
+    </div>
+    <div class="step">
+      <div class="num">4</div>
+      <div>填完后点【💾 保存配置】→【🧪 测试 AI】成功 → 【🚀 启动 Bot】, 然后在 BotFather 里执行 <code>/setprivacy → Disable</code> 让 Bot 能读群消息, 把 Bot 拉进群, 设为管理员即可!</div>
+    </div>
+  </div>
+
+  <div class="grid">
+    <!-- 左: Telegram & QPred 配置 -->
+    <div class="card">
+      <h2>📲 Telegram & 平台 <span class="badge">基础配置</span></h2>
+
+      <label>BOT_TOKEN <span class="hint">从 @BotFather 获取</span></label>
+      <input id="bot_token" type="text" placeholder="123456789:AAH..." value="{{ env.get('BOT_TOKEN', '') }}">
+
+      <label>ADMIN_IDS <span class="hint">您的 Telegram User ID, 多个用逗号</span></label>
+      <input id="admin_ids" type="text" placeholder="123456789,987654321" value="{{ env.get('ADMIN_IDS', '') }}">
+
+      <label>GROUP_CHAT_ID <span class="hint">可选, 用 /register_group 自动登记</span></label>
+      <input id="group_chat_id" type="text" placeholder="-1001234567890" value="{{ env.get('GROUP_CHAT_ID', '0') }}">
+
+      <label>QPred 官网</label>
+      <input id="qpred_website" type="text" value="{{ env.get('QPRED_WEBSITE', 'https://www.qpred.io') }}">
+
+      <label>QPred API Base</label>
+      <input id="qpred_api_base" type="text" value="{{ env.get('QPRED_API_BASE', 'https://api.qpred.io') }}">
+
+      <div class="switch">
+        <input id="reply_all" type="checkbox" {% if env.get('REPLY_ALL_GROUP_MESSAGES','true') == 'true' %}checked{% endif %}>
+        <label for="reply_all" style="margin:0;">群里每条消息都用 AI 回答 (全员客服模式)</label>
+      </div>
+
+      <div class="actions">
+        <button onclick="testBot()">🔍 测试 BOT_TOKEN</button>
+      </div>
+      <div id="bot_result" class="result" style="display:none;"></div>
+    </div>
+
+    <!-- 右: AI (Tokenhot) 配置 + 测试 -->
+    <div class="card">
+      <h2>🧠 AI 推理 (Tokenhot 网关) <span class="badge">核心</span></h2>
+
+      <label>OPENAI_BASE_URL</label>
+      <input id="base_url" type="text" value="{{ env.get('OPENAI_BASE_URL', default_base_url) }}">
+
+      <label>API Key <span class="hint">从 api.tokenhot.ai/console/token 获取</span></label>
+      <input id="api_key" type="password" placeholder="sk-xxxxx" value="{{ env.get('OPENAI_API_KEY', '') }}">
+
+      <label>模型 (推荐 Claude Sonnet 4.6 性价比首选)</label>
+      <select id="model">
+        {% for m in models %}
+          <option value="{{ m.id }}" {% if env.get('OPENAI_MODEL') == m.id %}selected{% endif %}>{{ m.name }}</option>
+        {% endfor %}
+        <option value="__custom__">— 自定义 (下方手动输入) —</option>
+      </select>
+      <input id="model_custom" type="text" placeholder="自定义模型名 (留空使用上方下拉)" style="margin-top:8px; display:none;">
+
+      <div class="switch">
+        <input id="enable_rag" type="checkbox" {% if env.get('ENABLE_RAG','true') == 'true' %}checked{% endif %}>
+        <label for="enable_rag" style="margin:0;">启用 RAG (FAQ 检索 + 平台实时数据注入)</label>
+      </div>
+
+      <label>测试问题 <span class="hint">点击右侧"测试 AI"立即调用 tokenhot</span></label>
+      <textarea id="test_question">你好, 请用一句话介绍 QPred 平台的核心优势</textarea>
+
+      <div class="actions">
+        <button class="success" onclick="testAI()">🧪 测试 AI</button>
+      </div>
+      <div id="ai_result" class="result" style="display:none;"></div>
+    </div>
+  </div>
+
+  <!-- 保存 / 启动栏 -->
+  <div class="card" style="margin-top:20px;">
+    <h2>🚀 保存 & 运行 <span class="badge" id="status_badge">检查中...</span></h2>
+    <div class="actions">
+      <button onclick="saveConfig()">💾 保存配置 (写入 .env)</button>
+      <button class="success" onclick="startBot()">🚀 启动 Bot</button>
+      <button class="danger" onclick="stopBot()">🛑 停止 Bot</button>
+      <button class="ghost" onclick="refreshStatus()">🔄 刷新状态 / 日志</button>
+    </div>
+    <div id="save_result" class="result" style="display:none;"></div>
+    <label style="margin-top:14px;">📜 Bot 实时日志 (尾部 4KB)</label>
+    <pre id="log_tail" class="result" style="background:#020617; max-height:300px;">(暂无)</pre>
+  </div>
+
+  <div class="footer">
+    QPred Bot Panel · Powered by <a href="https://tokenhot.ai/zh" target="_blank" style="color:#94a3b8">tokenhot.ai</a>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+
+document.getElementById('model').addEventListener('change', e => {
+  document.getElementById('model_custom').style.display =
+    e.target.value === '__custom__' ? 'block' : 'none';
+});
+
+function getModel() {
+  const sel = $('model').value;
+  if (sel === '__custom__') return $('model_custom').value.trim();
+  return sel;
+}
+
+function show(elId, text, ok) {
+  const el = $(elId);
+  el.style.display = 'block';
+  el.textContent = text;
+  el.className = 'result ' + (ok ? 'success' : 'error');
+}
+
+async function api(path, body) {
+  const res = await fetch(path, {
+    method: body ? 'POST' : 'GET',
+    headers: {'Content-Type': 'application/json'},
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  return res.json();
+}
+
+async function testBot() {
+  const r = await api('/api/test_bot', { bot_token: $('bot_token').value });
+  show('bot_result', r.msg, r.ok);
+}
+
+async function testAI() {
+  show('ai_result', '⏳ 正在调用 tokenhot.ai ...', true);
+  const r = await api('/api/test_ai', {
+    api_key: $('api_key').value,
+    base_url: $('base_url').value,
+    model: getModel(),
+    question: $('test_question').value,
+  });
+  if (r.ok) {
+    let txt = '✅ 调用成功!\n\n模型: ' + (r.model || '') + '\n';
+    if (r.usage) txt += 'Tokens: ' + JSON.stringify(r.usage) + '\n';
+    txt += '\n--- AI 回答 ---\n' + r.answer;
+    show('ai_result', txt, true);
+  } else {
+    show('ai_result', r.msg, false);
+  }
+}
+
+async function saveConfig() {
+  const r = await api('/api/save', {
+    bot_token: $('bot_token').value,
+    admin_ids: $('admin_ids').value,
+    group_chat_id: $('group_chat_id').value,
+    api_key: $('api_key').value,
+    base_url: $('base_url').value,
+    model: getModel(),
+    enable_rag: $('enable_rag').checked,
+    reply_all: $('reply_all').checked,
+    qpred_api_base: $('qpred_api_base').value,
+    qpred_website: $('qpred_website').value,
+  });
+  show('save_result', r.msg, r.ok);
+}
+
+async function startBot() {
+  const r = await api('/api/bot/start', {});
+  show('save_result', r.msg, r.ok);
+  setTimeout(refreshStatus, 1500);
+}
+
+async function stopBot() {
+  const r = await api('/api/bot/stop', {});
+  show('save_result', r.msg, r.ok);
+  setTimeout(refreshStatus, 800);
+}
+
+async function refreshStatus() {
+  const r = await api('/api/bot/status');
+  $('status_badge').textContent = r.running ? '🟢 运行中' : '⚪ 未运行';
+  $('status_badge').className = 'status-pill ' + (r.running ? 'on' : 'off');
+  $('log_tail').textContent = r.log_tail || '(暂无日志)';
+}
+
+refreshStatus();
+setInterval(refreshStatus, 5000);
+</script>
+</body>
+</html>

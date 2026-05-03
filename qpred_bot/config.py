@@ -9,13 +9,30 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-# 各供应商默认 BASE_URL
+# 默认走 Tokenhot 统一网关 (OpenAI 兼容协议)
+TOKENHOT_BASE_URL = "https://api.tokenhot.ai/v1"
+
+# 供应商别名 → BASE_URL (全部通过 tokenhot 网关访问, 无需单独申请 Key)
 PROVIDER_BASE_URLS = {
-    "openai": "https://api.openai.com/v1",
-    "deepseek": "https://api.deepseek.com/v1",
-    "anthropic": "https://api.anthropic.com/v1",
-    "openrouter": "https://openrouter.ai/api/v1",
+    "tokenhot": TOKENHOT_BASE_URL,
+    "openai": TOKENHOT_BASE_URL,
+    "anthropic": TOKENHOT_BASE_URL,
+    "claude": TOKENHOT_BASE_URL,
+    "gemini": TOKENHOT_BASE_URL,
+    "deepseek": TOKENHOT_BASE_URL,
+    "grok": TOKENHOT_BASE_URL,
+    "qwen": TOKENHOT_BASE_URL,
     "custom": "",
+}
+
+# Tokenhot 推荐模型 (按场景)
+TOKENHOT_MODELS = {
+    "性价比": "gpt-5.4-nano",
+    "核心": "claude-sonnet-4-6",
+    "推理强者": "o3",
+    "顶级": "claude-opus-4-6",
+    "国产强者": "deepseek-v3.2",
+    "Gemini": "gemini-3-flash",
 }
 
 
@@ -29,16 +46,19 @@ class Config:
     ]
     GROUP_CHAT_ID = int(os.getenv("GROUP_CHAT_ID", "0") or "0")
 
-    # ===== AI 推理 =====
-    AI_PROVIDER = os.getenv("AI_PROVIDER", "openai").lower().strip()
-    OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
-    OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+    # ===== AI 推理 (默认走 tokenhot.ai 网关) =====
+    AI_PROVIDER = os.getenv("AI_PROVIDER", "tokenhot").lower().strip()
+    OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")  # 即 Tokenhot Key (sk-xxx)
+    OPENAI_MODEL = os.getenv("OPENAI_MODEL", "claude-sonnet-4-6")
     OPENAI_BASE_URL = (
         os.getenv("OPENAI_BASE_URL", "").strip()
-        or PROVIDER_BASE_URLS.get(AI_PROVIDER, "https://api.openai.com/v1")
+        or PROVIDER_BASE_URLS.get(AI_PROVIDER, TOKENHOT_BASE_URL)
     )
     ENABLE_AI = os.getenv("ENABLE_AI", "true").lower() == "true"
     ENABLE_RAG = os.getenv("ENABLE_RAG", "true").lower() == "true"
+
+    # 群里每条消息都自动回复? true=全员AI客服 / false=仅 @机器人/关键词触发
+    REPLY_ALL_GROUP_MESSAGES = os.getenv("REPLY_ALL_GROUP_MESSAGES", "true").lower() == "true"
 
     # ===== QPred =====
     QPRED_API_BASE = os.getenv("QPRED_API_BASE", "https://api.qpred.io")

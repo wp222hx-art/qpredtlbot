@@ -52,6 +52,16 @@ def _should_trigger(update: Update, bot_username: str) -> bool:
     if chat.type == "private":
         return True
 
+    # 全员客服模式: 群里每条消息都回 (排除命令 / 空消息)
+    if config.REPLY_ALL_GROUP_MESSAGES:
+        if text.startswith("/"):
+            return False
+        # 太短的消息不回 (避免响应"哈哈"/"好的"等)
+        if len(text.strip()) < 3:
+            return False
+        return True
+
+    # 精准触发模式:
     # 1) @机器人
     if bot_username and f"@{bot_username}" in text:
         return True
@@ -99,8 +109,12 @@ async def smart_reply(update: Update, context: ContextTypes.DEFAULT_TYPE):
     answer = await ai_service.answer(question, extra_context=extra)
     await db.log_faq(update.effective_user.id, question, answer)
 
-    # 用普通文本回复, 避免 Markdown 转义问题
+    # 用普通文本回复 (reply_to 可以让群里看到 @对应那个用户)
     try:
-        await msg.reply_text(answer, disable_web_page_preview=True)
+        await msg.reply_text(
+            answer,
+            disable_web_page_preview=True,
+            reply_to_message_id=msg.message_id,
+        )
     except Exception as e:
         logger.error(f"smart_reply send failed: {e}")

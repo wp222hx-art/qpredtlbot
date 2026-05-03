@@ -7,3 +7,5 @@ langdetect==1.0.9
 APScheduler==3.10.4
 # RAG 增强 (轻量纯 Python, 无需向量数据库)
 rapidfuzz==3.10.1
+# Web 配置 & 测试面板
+flask==3.0.3

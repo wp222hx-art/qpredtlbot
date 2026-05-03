@@ -4,6 +4,13 @@
 > 调通 Telegram Bot API，建立专属群客服体系，接入最强推理模型 + 自主 RAG，
 > 服务群内容 + 实时传递平台数据。
 
+📘 **新手必读**：[部署教程.md](./部署教程.md) — 10 分钟手把手跑起来
+
+🎛 **配置面板**：`./setup.sh && ./panel.sh` → 浏览器打开 http://localhost:8080
+（一键填配置 / 在线测试 AI / 启停 Bot）
+
+🚀 **AI 网关**：所有模型走 [tokenhot.ai](https://tokenhot.ai/zh) 统一接入（OpenAI 兼容协议）
+
 ---
 
 ## ✨ 核心能力
