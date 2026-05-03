@@ -1,0 +1,9 @@
+python-telegram-bot==21.6
+python-dotenv==1.0.1
+openai==1.54.0
+httpx==0.27.2
+aiosqlite==0.20.0
+langdetect==1.0.9
+APScheduler==3.10.4
+# RAG 增强 (轻量纯 Python, 无需向量数据库)
+rapidfuzz==3.10.1

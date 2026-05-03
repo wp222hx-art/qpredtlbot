@@ -1,0 +1,16 @@
+version: "3.9"
+
+services:
+  qpred_bot:
+    build: .
+    container_name: qpred_bot
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./knowledge_base:/app/knowledge_base
+    # Telegram 长轮询无需暴露端口; 如需 webhook 再放开下方
+    # ports:
+    #   - "8443:8443"
